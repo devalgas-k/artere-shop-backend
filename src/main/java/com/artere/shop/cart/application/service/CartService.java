@@ -24,7 +24,7 @@ public class CartService implements CartUseCase {
 
     @Override
     public Cart createCart() {
-        Cart cart = new Cart(new CartId(null));
+        Cart cart = new Cart(null);
         return cartRepository.save(cart);
     }
 

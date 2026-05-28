@@ -30,7 +30,7 @@ public class CategoryService implements CategoryUseCase {
                     .orElseThrow(() -> new IllegalArgumentException("Parent category not found: " + parentId.value()));
         }
         
-        Category category = new Category(new CategoryId(null), name, description, parentId);
+        Category category = new Category(null, name, description, parentId);
         return categoryRepository.save(category);
     }
 

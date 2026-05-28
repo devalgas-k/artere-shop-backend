@@ -18,14 +18,12 @@ public class Cart {
     private final List<CartItem> items;
 
     public Cart(CartId id) {
-        Objects.requireNonNull(id, "Id cannot be null");
         this.id = id;
         this.createdAt = Instant.now();
         this.items = new ArrayList<>();
     }
     
     public Cart(CartId id, Instant createdAt, List<CartItem> items) {
-        Objects.requireNonNull(id, "Id cannot be null");
         Objects.requireNonNull(createdAt, "CreatedAt cannot be null");
         this.id = id;
         this.createdAt = createdAt;

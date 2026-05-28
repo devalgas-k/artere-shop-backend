@@ -17,7 +17,6 @@ public class Product {
     private final Set<CategoryId> categoryIds;
 
     public Product(ProductId id, String name, Money price, StockQuantity stockQuantity) {
-        Objects.requireNonNull(id, "Id cannot be null");
         this.id = id;
         setName(name);
         setPrice(price);

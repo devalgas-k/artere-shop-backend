@@ -13,7 +13,6 @@ public class Category {
     private CategoryId parentId;
 
     public Category(CategoryId id, String name, String description, CategoryId parentId) {
-        Objects.requireNonNull(id, "Id cannot be null");
         this.id = id;
         setName(name);
         this.description = description;
