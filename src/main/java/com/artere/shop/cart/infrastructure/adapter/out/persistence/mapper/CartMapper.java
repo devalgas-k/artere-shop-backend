@@ -7,23 +7,34 @@ import com.artere.shop.catalogue.domain.model.ProductId;
 import com.artere.shop.shared.domain.model.Money;
 import com.artere.shop.cart.infrastructure.adapter.out.persistence.entity.CartItemJpaEntity;
 import com.artere.shop.cart.infrastructure.adapter.out.persistence.entity.CartJpaEntity;
-import org.mapstruct.AfterMapping;
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
-import org.mapstruct.MappingTarget;
-import org.mapstruct.Named;
+import org.springframework.stereotype.Component;
 
-import java.math.BigDecimal;
 import java.util.List;
 
-@Mapper
-public interface CartMapper {
+@Component
+public class CartMapper {
 
-    @Mapping(target = "id", source = "id", qualifiedByName = "cartIdToLong")
-    @Mapping(target = "items", source = "items")
-    CartJpaEntity toEntity(Cart cart);
+    public CartJpaEntity toEntity(Cart cart) {
+        if (cart == null) {
+            return null;
+        }
+        CartJpaEntity entity = new CartJpaEntity();
+        entity.setId(cart.getId() != null ? cart.getId().value() : null);
+        entity.setCreatedAt(cart.getCreatedAt());
+        
+        if (cart.getItems() != null) {
+            List<CartItemJpaEntity> itemEntities = cart.getItems().stream()
+                .map(this::cartItemToEntity)
+                .toList();
+            entity.setItems(itemEntities);
+            for (CartItemJpaEntity item : itemEntities) {
+                item.setCart(entity);
+            }
+        }
+        return entity;
+    }
 
-    default Cart toDomain(CartJpaEntity entity) {
+    public Cart toDomain(CartJpaEntity entity) {
         if (entity == null) {
             return null;
         }
@@ -32,58 +43,31 @@ public interface CartMapper {
             java.util.List.of();
             
         return new Cart(
-            longToCartId(entity.getId()),
+            entity.getId() != null ? new CartId(entity.getId()) : null,
             entity.getCreatedAt(),
             mappedItems
         );
     }
 
-    @Mapping(target = "id", ignore = true)
-    @Mapping(target = "cart", ignore = true)
-    @Mapping(target = "productId", source = "productId", qualifiedByName = "productIdToLong")
-    @Mapping(target = "unitPrice", source = "unitPrice", qualifiedByName = "moneyToBigDecimal")
-    CartItemJpaEntity cartItemToEntity(CartItem cartItem);
-
-    @Mapping(target = "productId", source = "productId", qualifiedByName = "longToProductId")
-    @Mapping(target = "unitPrice", source = "unitPrice", qualifiedByName = "bigDecimalToMoney")
-    CartItem entityToCartItem(CartItemJpaEntity entity);
-
-    @AfterMapping
-    default void linkCartItems(@MappingTarget CartJpaEntity cartEntity) {
-        if (cartEntity.getItems() != null) {
-            for (CartItemJpaEntity item : cartEntity.getItems()) {
-                item.setCart(cartEntity);
-            }
+    public CartItemJpaEntity cartItemToEntity(CartItem cartItem) {
+        if (cartItem == null) {
+            return null;
         }
+        CartItemJpaEntity entity = new CartItemJpaEntity();
+        entity.setProductId(cartItem.getProductId() != null ? cartItem.getProductId().value() : null);
+        entity.setUnitPrice(cartItem.getUnitPrice() != null ? cartItem.getUnitPrice().amount() : null);
+        entity.setQuantity(cartItem.getQuantity());
+        return entity;
     }
 
-    @Named("cartIdToLong")
-    default Long cartIdToLong(CartId id) {
-        return id != null ? id.value() : null;
-    }
-
-    @Named("longToCartId")
-    default CartId longToCartId(Long id) {
-        return id != null ? new CartId(id) : null;
-    }
-
-    @Named("productIdToLong")
-    default Long productIdToLong(ProductId id) {
-        return id != null ? id.value() : null;
-    }
-
-    @Named("longToProductId")
-    default ProductId longToProductId(Long id) {
-        return id != null ? new ProductId(id) : null;
-    }
-
-    @Named("moneyToBigDecimal")
-    default BigDecimal moneyToBigDecimal(Money money) {
-        return money != null ? money.amount() : null;
-    }
-
-    @Named("bigDecimalToMoney")
-    default Money bigDecimalToMoney(BigDecimal amount) {
-        return amount != null ? new Money(amount) : null;
+    public CartItem entityToCartItem(CartItemJpaEntity entity) {
+        if (entity == null) {
+            return null;
+        }
+        return new CartItem(
+            entity.getProductId() != null ? new ProductId(entity.getProductId()) : null,
+            entity.getQuantity(),
+            entity.getUnitPrice() != null ? new Money(entity.getUnitPrice()) : null
+        );
     }
 }
