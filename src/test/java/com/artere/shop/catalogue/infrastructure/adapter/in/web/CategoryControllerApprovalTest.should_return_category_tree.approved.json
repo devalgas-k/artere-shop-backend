@@ -1,0 +1,15 @@
+[
+  {
+    "id": 1,
+    "name": "Electronics",
+    "description": "Electronic items",
+    "children": [
+      {
+        "id": 2,
+        "name": "Laptops",
+        "description": "Laptop computers",
+        "children": []
+      }
+    ]
+  }
+]

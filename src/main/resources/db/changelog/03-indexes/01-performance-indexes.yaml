@@ -1,0 +1,17 @@
+databaseChangeLog:
+  - changeSet:
+      id: devalgas-20260528-04
+      author: devalgas
+      changes:
+        - createIndex:
+            indexName: idx_category_parent_id
+            tableName: category
+            columns:
+              - column:
+                  name: parent_id
+        - createIndex:
+            indexName: idx_cart_item_cart_id
+            tableName: cart_item
+            columns:
+              - column:
+                  name: cart_id
